@@ -32,11 +32,21 @@ target_compile_definitions(acessna PRIVATE
   ACESSNA_JSBSIM_ROOT="${jsbsim_SOURCE_DIR}")
 target_compile_options(acessna PRIVATE -Wall -Wextra)
 
-# Tests (ctest)
+# Tests (GoogleTest)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        v1.15.2
+  GIT_SHALLOW    TRUE
+  EXCLUDE_FROM_ALL
+  SYSTEM)
+FetchContent_MakeAvailable(googletest)
+
 enable_testing()
-add_executable(test_harness tests/test_harness.cpp)
-target_link_libraries(test_harness PRIVATE acessna)
-add_test(NAME harness COMMAND test_harness)
+include(GoogleTest)
+add_executable(acessna_tests tests/test_harness.cpp)
+target_link_libraries(acessna_tests PRIVATE acessna GTest::gtest_main)
+gtest_discover_tests(acessna_tests)
 
 # Executable
 add_executable(acessna_run src/main.cpp)

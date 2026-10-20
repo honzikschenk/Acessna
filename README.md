@@ -15,7 +15,7 @@ cmake --build build -j
 ./build/acessna_run
 
 # Test
-ctest --test-dir build
+ctest --test-dir build --output-on-failure
 
 # Plot
 uv run analysis/plot_run.py run.csv # interactive window
