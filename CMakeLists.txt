@@ -25,7 +25,11 @@ FetchContent_MakeAvailable(jsbsim)
 add_library(acessna
   src/sim/sim.cpp
   src/sim/harness.cpp
-  src/control/flight_controller.cpp)
+  src/autopilot/autopilot.cpp
+  src/autopilot/mode_manager.cpp
+  src/control/flight_path_controller.cpp
+  src/control/attitude_controller.cpp
+  src/control/rate_controller.cpp)
 target_include_directories(acessna PUBLIC include)
 target_link_libraries(acessna PUBLIC libJSBSim)
 target_compile_definitions(acessna PRIVATE

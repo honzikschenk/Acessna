@@ -1,15 +1,18 @@
 #include <cstdio>
 
-#include "acessna/control/flight_controller.hpp"
+#include "acessna/autopilot/autopilot.hpp"
 #include "acessna/sim/harness.hpp"
 
 int main() {
   acessna::RunConfig cfg;
   cfg.csv_path = "run.csv";
+  cfg.duration_s = -1.0;
+  cfg.realtime = true;
+  cfg.flightgear = true;
 
-  acessna::FlightController controller;
+  acessna::Autopilot autopilot;
 
-  const auto result = acessna::run(controller, cfg);
+  const auto result = acessna::run(autopilot, cfg);
 
   if (!result.error.empty()) {
     std::fprintf(stderr, "error: %s\n", result.error.c_str());
