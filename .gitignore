@@ -66,3 +66,10 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Log output
+*.csv
+
+# Python
+.venv/
+__pycache__/

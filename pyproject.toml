@@ -1,0 +1,12 @@
+[project]
+name = "acessna-analysis"
+version = "0.1.0"
+description = "Log viewer of Acessna runs"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.11.2",
+    "numpy>=2.4.6",
+]
+
+[tool.uv]
+package = false
