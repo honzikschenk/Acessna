@@ -6,8 +6,6 @@
 int main() {
   acessna::RunConfig cfg;
   cfg.csv_path = "run.csv";
-  cfg.flightgear = true;
-  cfg.realtime = true;
 
   acessna::FlightController controller;
 
