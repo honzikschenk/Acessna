@@ -19,8 +19,10 @@ RunResult run(Controller& controller, const RunConfig& cfg) {
   C172Sim sim(cfg.ic, cfg.sim_hz);
   if (cfg.flightgear) sim.enable_flightgear_output();
 
+  const bool unbounded = cfg.duration_s < 0;  // run until ground, error or on_step stops it
+
   RunResult result;
-  result.log.reserve(static_cast<size_t>(cfg.duration_s * cfg.control_hz) + 1);
+  if (!unbounded) result.log.reserve(static_cast<size_t>(cfg.duration_s * cfg.control_hz) + 1);
 
   State s = sim.state();
   controller.reset(s, sim.trim_controls());
@@ -28,7 +30,7 @@ RunResult run(Controller& controller, const RunConfig& cfg) {
   const auto wall_start = std::chrono::steady_clock::now();
   const double t0 = s.t;
   try {
-    while (s.t - t0 < cfg.duration_s - 1e-9) {
+    while (unbounded || s.t - t0 < cfg.duration_s - 1e-9) {
       if (cfg.on_step && !cfg.on_step(sim, s)) break;
       Controls c = controller.update(s, control_dt);
       sim.apply(c);

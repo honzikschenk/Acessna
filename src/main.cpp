@@ -10,6 +10,7 @@ int main() {
   cfg.realtime = true;
 
   acessna::FlightController controller;
+
   const auto result = acessna::run(controller, cfg);
 
   if (!result.error.empty()) {

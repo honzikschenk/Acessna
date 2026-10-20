@@ -12,7 +12,7 @@ namespace acessna {
 
 struct RunConfig {
   InitialConditions ic;
-  double duration_s = 60.0;
+  double duration_s = -1.0;   // -1 = runs until stop_on_ground or error
   double control_hz = 60.0;   // must divide sim_hz evenly
   double sim_hz = 120.0;      // JSBSim integration rate
   bool realtime = false;      // pace to wall clock (for FlightGear viewing)
