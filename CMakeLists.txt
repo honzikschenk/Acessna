@@ -22,16 +22,23 @@ FetchContent_Declare(jsbsim
 FetchContent_MakeAvailable(jsbsim)
 
 # Acessna
+find_package(Threads REQUIRED)  # Monte Carlo runner
 add_library(acessna
+  src/telemetry.cpp
   src/sim/sim.cpp
   src/sim/harness.cpp
   src/autopilot/autopilot.cpp
   src/autopilot/mode_manager.cpp
+  src/autopilot/modes.cpp
+  src/control/pid.cpp
+  src/control/filters.cpp
   src/control/flight_path_controller.cpp
+  src/control/tecs.cpp
+  src/control/lateral_controller.cpp
   src/control/attitude_controller.cpp
   src/control/rate_controller.cpp)
 target_include_directories(acessna PUBLIC include)
-target_link_libraries(acessna PUBLIC libJSBSim)
+target_link_libraries(acessna PUBLIC libJSBSim Threads::Threads)
 target_compile_definitions(acessna PRIVATE
   ACESSNA_JSBSIM_ROOT="${jsbsim_SOURCE_DIR}")
 target_compile_options(acessna PRIVATE -Wall -Wextra)
@@ -48,7 +55,9 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 include(GoogleTest)
-add_executable(acessna_tests tests/test_harness.cpp)
+add_executable(acessna_tests
+  tests/test_harness.cpp
+  tests/test_infrastructure.cpp)
 target_link_libraries(acessna_tests PRIVATE acessna GTest::gtest_main)
 gtest_discover_tests(acessna_tests)
 

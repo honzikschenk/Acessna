@@ -26,11 +26,13 @@ struct RunConfig {
 
 struct Sample {
   State state;
-  Controls controls;  // command issued at this state
+  Controls controls;            // command issued at this state
+  std::vector<double> signals;  // telemetry
 };
 
 struct RunResult {
   std::vector<Sample> log;
+  std::vector<std::string> signal_names;  // telemetry columns
   bool hit_ground = false;
   std::string error;  // non-empty if JSBSim threw mid-run
   const State& final_state() const { return log.back().state; }
@@ -38,6 +40,6 @@ struct RunResult {
 
 RunResult run(Controller& controller, const RunConfig& cfg);
 
-void write_csv(const std::string& path, const std::vector<Sample>& log);
+void write_csv(const std::string& path, const RunResult& result);
 
 }  // namespace acessna

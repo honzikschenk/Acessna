@@ -2,19 +2,23 @@
 
 namespace acessna {
 
-void FlightPathController::reset(const State& s, const Controls& trim) {
-  hold_.attitude = {s.phi_deg, s.theta_deg, s.beta_deg};
-  hold_.throttle = trim.throttle;
+void FlightPathController::attach_telemetry(Telemetry& t) {
+  tecs_.attach_telemetry(t);
+  lateral_.attach_telemetry(t);
+}
+
+void FlightPathController::reset(const State& s, const Controls& current) {
+  tecs_.reset(s, current);
+  lateral_.reset(s);
 }
 
 FlightPathOutput FlightPathController::update(const Target& t, const State& s, double dt) {
-  (void)t;
-  (void)s;
-  (void)dt;
-  FlightPathOutput out = hold_;  // hold the condition at the last reset
-  // TODO: altitude -> pitch setpoint
-  // TODO: heading -> roll setpoint
-  // TODO: airspeed -> throttle
+  const TecsOutput lon = tecs_.update(t, s, dt);
+  const double roll_deg = lateral_.update(t, s, dt);
+
+  FlightPathOutput out;
+  out.attitude = {roll_deg, lon.pitch_deg, sideslip_deg_};
+  out.throttle = lon.throttle;
   return out;
 }
 

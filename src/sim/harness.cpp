@@ -24,6 +24,9 @@ RunResult run(Controller& controller, const RunConfig& cfg) {
   RunResult result;
   if (!unbounded) result.log.reserve(static_cast<size_t>(cfg.duration_s * cfg.control_hz) + 1);
 
+  Telemetry telemetry;
+  controller.attach_telemetry(telemetry);
+
   State s = sim.state();
   controller.reset(s, sim.trim_controls());
 
@@ -32,9 +35,10 @@ RunResult run(Controller& controller, const RunConfig& cfg) {
   try {
     while (unbounded || s.t - t0 < cfg.duration_s - 1e-9) {
       if (cfg.on_step && !cfg.on_step(sim, s)) break;
+      telemetry.begin_step();
       Controls c = controller.update(s, control_dt);
       sim.apply(c);
-      result.log.push_back({s, c});
+      result.log.push_back({s, c, telemetry.values()});
       s = sim.step(substeps);
 
       if (cfg.stop_on_ground && s.agl_ft < 1.0) {
@@ -50,29 +54,33 @@ RunResult run(Controller& controller, const RunConfig& cfg) {
     result.error = e.what();
   }
   // Final state with the last command held, so the log covers the full run
-  result.log.push_back({s, result.log.empty() ? sim.trim_controls() : result.log.back().controls});
+  result.log.push_back({s, result.log.empty() ? sim.trim_controls() : result.log.back().controls, {}});
+  result.signal_names = telemetry.names();
+  controller.attach_telemetry(Telemetry::discard());  // `telemetry` dies with this call
 
-  if (!cfg.csv_path.empty()) write_csv(cfg.csv_path, result.log);
+  if (!cfg.csv_path.empty()) write_csv(cfg.csv_path, result);
   return result;
 }
 
-void write_csv(const std::string& path, const std::vector<Sample>& log) {
+void write_csv(const std::string& path, const RunResult& result) {
   std::ofstream out(path);
   if (!out) throw std::runtime_error("cannot open " + path);
-  out << "t,north_m,east_m,lat_deg,lon_deg,alt_ft,agl_ft,phi_deg,theta_deg,psi_deg,"
-         "p_dps,q_dps,r_dps,airspeed_kts,tas_kts,groundspeed_kts,track_deg,vs_fpm,"
-         "alpha_deg,beta_deg,rpm,"
-         "elevator,aileron,rudder,throttle,mixture,flaps,pitch_trim\n";
+
+  for (const auto& f : kStateFields) out << f.name << ',';
+  out << "elevator,aileron,rudder,throttle,mixture,flaps,pitch_trim";
+  for (const auto& name : result.signal_names) out << ',' << name;
+  out << '\n';
+
   out.precision(8);
-  for (const auto& [s, c] : log) {
-    out << s.t << ',' << s.north_m << ',' << s.east_m << ',' << s.lat_deg << ',' << s.lon_deg
-        << ',' << s.alt_ft << ',' << s.agl_ft << ',' << s.phi_deg << ',' << s.theta_deg << ','
-        << s.psi_deg << ',' << s.p_dps << ',' << s.q_dps << ',' << s.r_dps << ','
-        << s.airspeed_kts << ',' << s.tas_kts << ',' << s.groundspeed_kts << ',' << s.track_deg
-        << ',' << s.vs_fpm << ',' << s.alpha_deg << ',' << s.beta_deg << ',' << s.rpm << ','
-        << c.elevator << ',' << c.aileron << ',' << c.rudder << ',' << c.throttle << ','
+  for (const auto& [s, c, signals] : result.log) {
+    for (const auto& f : kStateFields) out << s.*f.field << ',';
+    out << c.elevator << ',' << c.aileron << ',' << c.rudder << ',' << c.throttle << ','
         << c.mixture << ',' << c.flaps << ',';
     if (c.pitch_trim) out << *c.pitch_trim;
+    for (std::size_t i = 0; i < result.signal_names.size(); ++i) {
+      out << ',';
+      if (i < signals.size() && !std::isnan(signals[i])) out << signals[i];
+    }
     out << '\n';
   }
 }

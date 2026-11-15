@@ -5,6 +5,8 @@
 #include <optional>
 #include <string>
 
+#include "acessna/math.hpp"
+
 namespace JSBSim {
 class FGFDMExec;
 }
@@ -23,6 +25,7 @@ struct InitialConditions {
   double wind_east_fps = 0.0;
   double wind_down_fps = 0.0;
   double turbulence = 0.0;      // 0 = off, 1 light, 3 moderate, 5 severe
+  unsigned int random_seed = 0; // JSBSim RNG seed (turbulence)
   bool trim = true;             // trim for steady level flight at start
 };
 
@@ -62,6 +65,38 @@ struct State {
   double alpha_deg;
   double beta_deg;
   double rpm;
+};
+
+// One entry per State field: CSV column name, JSBSim property and scale to State units
+struct StateField {
+  double State::*field;
+  const char* name;
+  const char* prop;
+  double scale;
+};
+
+inline constexpr StateField kStateFields[] = {
+    {&State::t, "t", "simulation/sim-time-sec", 1.0},
+    {&State::north_m, "north_m", "position/distance-from-start-lat-mt", 1.0},
+    {&State::east_m, "east_m", "position/distance-from-start-lon-mt", 1.0},
+    {&State::lat_deg, "lat_deg", "position/lat-geod-deg", 1.0},
+    {&State::lon_deg, "lon_deg", "position/long-gc-deg", 1.0},
+    {&State::alt_ft, "alt_ft", "position/h-sl-ft", 1.0},
+    {&State::agl_ft, "agl_ft", "position/h-agl-ft", 1.0},
+    {&State::phi_deg, "phi_deg", "attitude/phi-deg", 1.0},
+    {&State::theta_deg, "theta_deg", "attitude/theta-deg", 1.0},
+    {&State::psi_deg, "psi_deg", "attitude/psi-deg", 1.0},
+    {&State::p_dps, "p_dps", "velocities/p-rad_sec", kRadToDeg},
+    {&State::q_dps, "q_dps", "velocities/q-rad_sec", kRadToDeg},
+    {&State::r_dps, "r_dps", "velocities/r-rad_sec", kRadToDeg},
+    {&State::airspeed_kts, "airspeed_kts", "velocities/vc-kts", 1.0},
+    {&State::tas_kts, "tas_kts", "velocities/vtrue-kts", 1.0},
+    {&State::groundspeed_kts, "groundspeed_kts", "velocities/vg-fps", kFpsToKts},
+    {&State::track_deg, "track_deg", "flight-path/psi-gt-rad", kRadToDeg},
+    {&State::vs_fpm, "vs_fpm", "velocities/h-dot-fps", 60.0},
+    {&State::alpha_deg, "alpha_deg", "aero/alpha-deg", 1.0},
+    {&State::beta_deg, "beta_deg", "aero/beta-deg", 1.0},
+    {&State::rpm, "rpm", "propulsion/engine/engine-rpm", 1.0},
 };
 
 class C172Sim {
