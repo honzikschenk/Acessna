@@ -17,7 +17,7 @@ struct LateralControllerConfig {
 
 class LateralController : public TelemetrySource {
  public:
-  explicit LateralController(const LateralControllerConfig& cfg = {}) : cfg_(cfg) {}
+  explicit LateralController(const LateralControllerConfig& cfg = {});
 
   void reset(const State& s);
 
@@ -31,7 +31,8 @@ class LateralController : public TelemetrySource {
   double track(const BankCommand& c, const State& s, double dt);
 
   LateralControllerConfig cfg_;
-  double hold_roll_deg_ = 0.0;
+  Pid heading_;
+  Pid course_;
 };
 
 }  // namespace acessna

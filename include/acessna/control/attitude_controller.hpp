@@ -19,7 +19,7 @@ struct AttitudeControllerConfig {
 
 class AttitudeController : public TelemetrySource {
  public:
-  explicit AttitudeController(const AttitudeControllerConfig& cfg = {}) : cfg_(cfg) {}
+  explicit AttitudeController(const AttitudeControllerConfig& cfg = {});
 
   void reset(const State& initial);
 
@@ -29,6 +29,9 @@ class AttitudeController : public TelemetrySource {
 
  private:
   AttitudeControllerConfig cfg_;
+  Pid roll_;
+  Pid pitch_;
+  Pid sideslip_;
 };
 
 }  // namespace acessna

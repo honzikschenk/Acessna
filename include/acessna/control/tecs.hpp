@@ -1,6 +1,7 @@
 // TECS, longitudinal flight-path control
 #pragma once
 
+#include "acessna/control/filters.hpp"
 #include "acessna/control/pid.hpp"
 #include "acessna/control/setpoints.hpp"
 #include "acessna/sim/sim.hpp"
@@ -9,9 +10,11 @@
 namespace acessna {
 
 struct TecsConfig {
-  PidGains total_energy;    // total energy rate error -> throttle
-  PidGains energy_balance;  // energy balance rate error -> pitch
-  double altitude_gain_per_s = 0.0;  // altitude error (ft) -> height-rate demand (ft/s)
+  PidGains total_energy;              // total energy rate error -> throttle
+  PidGains energy_balance;            // energy balance rate error -> pitch
+  double altitude_gain_per_s = 0.0;   // altitude error -> height-rate demand (ft/s)
+  double airspeed_gain_per_s = 0.0;   // airspeed error -> acceleration demand (1/s)
+  double speed_rate_tau_s = 0.5;      // low-pass on the measured airspeed derivative
   double pitch_min_deg = -10.0;
   double pitch_max_deg = 15.0;
   double throttle_min = 0.0;
@@ -22,7 +25,7 @@ struct TecsConfig {
 
 class Tecs : public TelemetrySource {
  public:
-  explicit Tecs(const TecsConfig& cfg = {}) : cfg_(cfg) {}
+  explicit Tecs(const TecsConfig& cfg = {});
 
   void reset(const State& s, const Controls& current);
 
@@ -36,7 +39,10 @@ class Tecs : public TelemetrySource {
   double height_rate_demand(const ClimbRateCommand& c, const State& s);
 
   TecsConfig cfg_;
-  TecsOutput hold_;
+  Pid total_energy_;
+  Pid energy_balance_;
+  LowPassFilter speed_rate_filter_;
+  double prev_airspeed_fps_ = 0.0;
 };
 
 }  // namespace acessna

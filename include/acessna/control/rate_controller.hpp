@@ -16,7 +16,7 @@ struct RateControllerConfig {
 
 class RateController : public TelemetrySource {
  public:
-  explicit RateController(const RateControllerConfig& cfg = {}) : cfg_(cfg) {}
+  explicit RateController(const RateControllerConfig& cfg = {});
 
   void reset(const State& initial, const Controls& trim);
 
@@ -26,6 +26,9 @@ class RateController : public TelemetrySource {
 
  private:
   RateControllerConfig cfg_;
+  Pid roll_;
+  Pid pitch_;
+  Pid yaw_;
   SurfaceCommands trim_;
 };
 
