@@ -10,11 +10,11 @@
 namespace acessna {
 
 struct TecsConfig {
-  PidGains total_energy;              // total energy rate error -> throttle
-  PidGains energy_balance;            // energy balance rate error -> pitch
-  double altitude_gain_per_s = 0.0;   // altitude error -> height-rate demand (ft/s)
-  double airspeed_gain_per_s = 0.0;   // airspeed error -> acceleration demand (1/s)
-  double speed_rate_tau_s = 0.5;      // low-pass on the measured airspeed derivative
+  PidGains total_energy;             // total energy rate error -> throttle
+  PidGains energy_balance;           // energy balance rate error -> pitch
+  double altitude_gain_per_s = 0.0;  // altitude error -> height-rate demand (ft/s)
+  double airspeed_gain_per_s = 0.0;  // airspeed error -> acceleration demand (1/s)
+  double speed_rate_tau_s = 0.5;     // low-pass on the measured airspeed derivative
   double pitch_min_deg = -10.0;
   double pitch_max_deg = 15.0;
   double throttle_min = 0.0;

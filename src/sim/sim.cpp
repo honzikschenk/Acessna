@@ -18,9 +18,7 @@ std::string C172Sim::root_dir() {
   return ACESSNA_JSBSIM_ROOT;
 }
 
-C172Sim::C172Sim(const InitialConditions& ic, double sim_hz) : ic_(ic), sim_hz_(sim_hz) {
-  reset();
-}
+C172Sim::C172Sim(const InitialConditions& ic, double sim_hz) : ic_(ic), sim_hz_(sim_hz) { reset(); }
 
 C172Sim::~C172Sim() = default;
 

@@ -39,7 +39,9 @@ TEST(Harness, NegativeDurationRunsUntilGround) {
   ctl.d_elevator = 0.6;  // steep dive into the ground
   acessna::RunConfig cfg;
   cfg.duration_s = -1.0;
-  cfg.on_step = [](acessna::C172Sim&, const acessna::State& s) { return s.t < 600.0; };  // safety cap
+  cfg.on_step = [](acessna::C172Sim&, const acessna::State& s) {
+    return s.t < 600.0;
+  };  // safety cap
   const auto r = acessna::run(ctl, cfg);
   ASSERT_TRUE(r.error.empty()) << r.error;
   EXPECT_TRUE(r.hit_ground);

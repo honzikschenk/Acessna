@@ -10,8 +10,10 @@ namespace acessna {
 
 Tecs::Tecs(const TecsConfig& cfg)
     : cfg_(cfg),
-      total_energy_(cfg.total_energy, {cfg.throttle_min, cfg.throttle_max, cfg.throttle_min, cfg.throttle_max}),
-      energy_balance_(cfg.energy_balance, {cfg.pitch_min_deg, cfg.pitch_max_deg, cfg.pitch_min_deg, cfg.pitch_max_deg}),
+      total_energy_(cfg.total_energy,
+                    {cfg.throttle_min, cfg.throttle_max, cfg.throttle_min, cfg.throttle_max}),
+      energy_balance_(cfg.energy_balance,
+                      {cfg.pitch_min_deg, cfg.pitch_max_deg, cfg.pitch_min_deg, cfg.pitch_max_deg}),
       speed_rate_filter_(cfg.speed_rate_tau_s) {}
 
 void Tecs::reset(const State& s, const Controls& current) {

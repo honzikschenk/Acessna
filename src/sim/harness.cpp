@@ -46,15 +46,15 @@ RunResult run(Controller& controller, const RunConfig& cfg) {
         break;
       }
       if (cfg.realtime) {
-        std::this_thread::sleep_until(
-            wall_start + std::chrono::duration<double>(s.t - t0));
+        std::this_thread::sleep_until(wall_start + std::chrono::duration<double>(s.t - t0));
       }
     }
   } catch (const std::exception& e) {
     result.error = e.what();
   }
   // Final state with the last command held, so the log covers the full run
-  result.log.push_back({s, result.log.empty() ? sim.trim_controls() : result.log.back().controls, {}});
+  result.log.push_back(
+      {s, result.log.empty() ? sim.trim_controls() : result.log.back().controls, {}});
   result.signal_names = telemetry.names();
   controller.attach_telemetry(Telemetry::discard());  // `telemetry` dies with this call
 

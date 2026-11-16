@@ -37,7 +37,8 @@ std::vector<Summary> run_monte_carlo(
     const ScenarioGenerator& scenario,
     const std::function<Summary(std::uint64_t seed, const RunResult&)>& summarize) {
   const int runs = std::max(cfg.runs, 0);
-  int threads = cfg.threads > 0 ? cfg.threads : static_cast<int>(std::thread::hardware_concurrency());
+  int threads =
+      cfg.threads > 0 ? cfg.threads : static_cast<int>(std::thread::hardware_concurrency());
   threads = std::clamp(threads, 1, std::max(runs, 1));
 
   std::vector<Summary> out(static_cast<std::size_t>(runs));

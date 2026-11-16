@@ -19,14 +19,14 @@ struct InitialConditions {
   double heading_deg = 0.0;     // true
   double lat_deg = 37.325776;
   double lon_deg = -79.978586;
-  double gamma_deg = 0.0;       // flight path angle
+  double gamma_deg = 0.0;  // flight path angle
   double terrain_elev_ft = 0.0;
   double wind_north_fps = 0.0;  // direction the air moves *toward*
   double wind_east_fps = 0.0;
   double wind_down_fps = 0.0;
-  double turbulence = 0.0;      // 0 = off, 1 light, 3 moderate, 5 severe
-  unsigned int random_seed = 0; // JSBSim RNG seed (turbulence)
-  bool trim = true;             // trim for steady level flight at start
+  double turbulence = 0.0;       // 0 = off, 1 light, 3 moderate, 5 severe
+  unsigned int random_seed = 0;  // JSBSim RNG seed (turbulence)
+  bool trim = true;              // trim for steady level flight at start
 };
 
 // Pilot inputs: Surfaces are normalized [-1, 1], throttle/mixture/flaps [0, 1]
@@ -37,31 +37,31 @@ struct Controls {
   double rudder = 0.0;    // + = yaw right
   double throttle = 0.75;
   double mixture = 0.87;
-  double flaps = 0.0;     // 0, 1/3, 2/3, 1 = 0, 10, 20, 30 deg
+  double flaps = 0.0;  // 0, 1/3, 2/3, 1 = 0, 10, 20, 30 deg
   // Unset leaves the trim wheel where the initial trim put it
   // `elevator` acts as a delta about the trimmed condition
   std::optional<double> pitch_trim;
 };
 
 struct State {
-  double t;               // s
-  double north_m;         // displacement from start
+  double t;        // s
+  double north_m;  // displacement from start
   double east_m;
   double lat_deg;
   double lon_deg;
-  double alt_ft;          // MSL
+  double alt_ft;  // MSL
   double agl_ft;
-  double phi_deg;         // roll
-  double theta_deg;       // pitch
-  double psi_deg;         // true heading [0, 360)
-  double p_dps;           // body roll rate
-  double q_dps;           // body pitch rate
-  double r_dps;           // body yaw rate
-  double airspeed_kts;    // calibrated
+  double phi_deg;       // roll
+  double theta_deg;     // pitch
+  double psi_deg;       // true heading [0, 360)
+  double p_dps;         // body roll rate
+  double q_dps;         // body pitch rate
+  double r_dps;         // body yaw rate
+  double airspeed_kts;  // calibrated
   double tas_kts;
   double groundspeed_kts;
-  double track_deg;       // ground track
-  double vs_fpm;          // vertical speed, + = climb
+  double track_deg;  // ground track
+  double vs_fpm;     // vertical speed, + = climb
   double alpha_deg;
   double beta_deg;
   double rpm;
@@ -69,7 +69,7 @@ struct State {
 
 // One entry per State field: CSV column name, JSBSim property and scale to State units
 struct StateField {
-  double State::*field;
+  double State::* field;
   const char* name;
   const char* prop;
   double scale;

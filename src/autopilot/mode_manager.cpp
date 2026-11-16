@@ -17,7 +17,9 @@ void ModeManager::reset(const State& initial) {
 
 void ModeManager::engage(std::unique_ptr<LateralMode> mode) { pending_lateral_ = std::move(mode); }
 
-void ModeManager::engage(std::unique_ptr<VerticalMode> mode) { pending_vertical_ = std::move(mode); }
+void ModeManager::engage(std::unique_ptr<VerticalMode> mode) {
+  pending_vertical_ = std::move(mode);
+}
 
 bool ModeManager::update(const State& s) {
   bool changed = false;

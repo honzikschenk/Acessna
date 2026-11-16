@@ -9,9 +9,12 @@ namespace acessna {
 
 AttitudeController::AttitudeController(const AttitudeControllerConfig& cfg)
     : cfg_(cfg),
-      roll_(cfg.roll, {-cfg.max_roll_rate_dps, cfg.max_roll_rate_dps, -cfg.max_roll_rate_dps, cfg.max_roll_rate_dps}),
-      pitch_(cfg.pitch, {-cfg.max_pitch_rate_dps, cfg.max_pitch_rate_dps, -cfg.max_pitch_rate_dps, cfg.max_pitch_rate_dps}),
-      sideslip_(cfg.sideslip, {-cfg.max_yaw_rate_dps, cfg.max_yaw_rate_dps, -cfg.max_yaw_rate_dps, cfg.max_yaw_rate_dps}) {}
+      roll_(cfg.roll, {-cfg.max_roll_rate_dps, cfg.max_roll_rate_dps, -cfg.max_roll_rate_dps,
+                       cfg.max_roll_rate_dps}),
+      pitch_(cfg.pitch, {-cfg.max_pitch_rate_dps, cfg.max_pitch_rate_dps, -cfg.max_pitch_rate_dps,
+                         cfg.max_pitch_rate_dps}),
+      sideslip_(cfg.sideslip, {-cfg.max_yaw_rate_dps, cfg.max_yaw_rate_dps, -cfg.max_yaw_rate_dps,
+                               cfg.max_yaw_rate_dps}) {}
 
 void AttitudeController::reset(const State& initial) {
   (void)initial;
