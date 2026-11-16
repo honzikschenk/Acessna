@@ -30,6 +30,11 @@ add_library(acessna
   src/autopilot/autopilot.cpp
   src/autopilot/mode_manager.cpp
   src/autopilot/modes.cpp
+  src/guidance/glideslope.cpp
+  src/guidance/l1.cpp
+  src/guidance/route.cpp
+  src/scenario/kroa.cpp
+  src/scenario/metrics.cpp
   src/control/pid.cpp
   src/control/filters.cpp
   src/control/flight_path_controller.cpp
@@ -57,7 +62,9 @@ enable_testing()
 include(GoogleTest)
 add_executable(acessna_tests
   tests/test_harness.cpp
-  tests/test_infrastructure.cpp)
+  tests/test_infrastructure.cpp
+  tests/test_route.cpp
+  tests/test_autopilot.cpp)
 target_link_libraries(acessna_tests PRIVATE acessna GTest::gtest_main)
 gtest_discover_tests(acessna_tests)
 

@@ -8,13 +8,14 @@ namespace {
 
 // Holds the trimmed controls, optionally adding a fixed delta
 struct HoldTrim : acessna::Controller {
-  double d_elevator = 0.0, d_aileron = 0.0;
+  double d_elevator = 0.0, d_aileron = 0.0, d_rudder = 0.0;
   acessna::Controls trim;
   void reset(const acessna::State&, const acessna::Controls& t) override { trim = t; }
   acessna::Controls update(const acessna::State&, double) override {
     acessna::Controls c = trim;
     c.elevator += d_elevator;
     c.aileron += d_aileron;
+    c.rudder += d_rudder;
     return c;
   }
 };
@@ -63,6 +64,14 @@ TEST(Harness, PositiveAileronRollsRight) {
   acessna::RunConfig cfg;
   cfg.duration_s = 2.0;
   EXPECT_GT(acessna::run(ctl, cfg).final_state().phi_deg, 5.0);
+}
+
+TEST(Harness, PositiveRudderYawsRight) {
+  HoldTrim ctl;
+  ctl.d_rudder = 0.2;
+  acessna::RunConfig cfg;
+  cfg.duration_s = 0.5;
+  EXPECT_GT(acessna::run(ctl, cfg).final_state().r_dps, 1.0);
 }
 
 }  // namespace

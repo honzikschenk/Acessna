@@ -9,9 +9,9 @@
 namespace acessna {
 
 struct RateControllerConfig {
-  PidGains roll;   // p error -> aileron
-  PidGains pitch;  // q error -> elevator
-  PidGains yaw;    // r error -> rudder
+  PidGains roll{0.02, 0.01, 0.0};   // p error -> aileron
+  PidGains pitch{0.03, 0.02, 0.0};  // q error -> elevator
+  PidGains yaw{0.05, 0.02, 0.0};    // r error -> rudder
 };
 
 class RateController : public TelemetrySource {

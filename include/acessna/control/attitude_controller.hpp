@@ -9,9 +9,9 @@
 namespace acessna {
 
 struct AttitudeControllerConfig {
-  PidGains roll;      // roll error -> p
-  PidGains pitch;     // pitch error -> q
-  PidGains sideslip;  // sideslip error -> r
+  PidGains roll{2.0, 0.1, 0.0};      // roll error -> p
+  PidGains pitch{2.0, 0.2, 0.0};     // pitch error -> q
+  PidGains sideslip{1.0, 0.2, 0.0};  // sideslip error -> r
   double max_roll_rate_dps = 20.0;
   double max_pitch_rate_dps = 10.0;
   double max_yaw_rate_dps = 15.0;

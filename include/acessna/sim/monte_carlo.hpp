@@ -58,7 +58,7 @@ std::vector<Summary> run_monte_carlo(
       } catch (...) {
         std::lock_guard<std::mutex> lock(error_mutex);
         if (!error) error = std::current_exception();
-        next = runs;  // stop handing out runs
+        next = runs;  // stops handing out runs
       }
     }
   };

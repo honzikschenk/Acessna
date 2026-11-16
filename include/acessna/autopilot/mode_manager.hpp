@@ -1,6 +1,7 @@
 // Runs the active lateral and vertical modes and their transitions
 #pragma once
 
+#include <functional>
 #include <memory>
 
 #include "acessna/autopilot/modes.hpp"
@@ -15,6 +16,12 @@ class ModeManager {
 
   // Engages HeadingHold + AltitudeHold with the initial airspeed
   void reset(const State& initial);
+
+  struct InitialModes {
+    std::unique_ptr<LateralMode> lateral;
+    std::unique_ptr<VerticalMode> vertical;
+  };
+  void set_initial_modes(std::function<InitialModes()> make) { make_initial_ = std::move(make); }
 
   // Engages a mode
   void engage(std::unique_ptr<LateralMode> mode);
@@ -38,6 +45,7 @@ class ModeManager {
   std::unique_ptr<LateralMode> pending_lateral_;
   std::unique_ptr<VerticalMode> pending_vertical_;
   double airspeed_kts_ = 0.0;
+  std::function<InitialModes()> make_initial_;
 };
 
 }  // namespace acessna

@@ -10,8 +10,8 @@
 namespace acessna {
 
 struct LateralControllerConfig {
-  PidGains heading;  // heading error -> roll setpoint
-  PidGains course;   // course error -> roll setpoint
+  PidGains heading{1.5, 0.0, 0.0};  // heading error -> roll setpoint
+  PidGains course{1.5, 0.2, 0.0};   // course error -> roll setpoint
   double max_bank_deg = 25.0;
 };
 

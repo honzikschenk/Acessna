@@ -7,26 +7,14 @@ Monte Carlo over wind, turbulence, and initial conditions.
 Written in C++17 on the JSBSim flight dynamics library, with Python analysis and
 FlightGear for visualization.
 
-## Status
-
-- [x] JSBSim C++ wrapper, closed-loop harness, CSV logging, GoogleTest suite
-- [x] Controller architecture: mode manager with heading / altitude hold modes, TECS, lateral, attitude and rate layers (interfaces and stubs)
-- [x] Telemetry: controller signals logged as extra CSV columns
-- [x] FlightGear visualization and Python log plotting
-- [x] Multithreaded, seed-reproducible Monte Carlo runner
-- [ ] Control laws: PID and filters, rate and attitude loops, TECS, lateral flight-path control
-- [ ] Lateral guidance (L1) with fly-by waypoint transitions
-- [ ] Glideslope guidance and approach mode logic
-- [ ] Monte Carlo scenarios (wind, turbulence, initial conditions) and requirements verification
-
 ## Architecture
 
 ```mermaid
 flowchart TD
   HOLD["HDG / ALT hold"] --> MM
-  L1["L1 lateral guidance (planned)"] --> MM
-  GS["Glideslope guidance (planned)"] --> MM
-  MM["ModeManager<br/>runs the active lateral and vertical modes"]
+  L1["L1 lateral guidance"] --> MM
+  GS["Glideslope guidance"] --> MM
+  MM["ModeManager"]
   MM -->|"Target: heading / course / bank,<br/>altitude / flight path angle / climb rate, airspeed"| FPC
   subgraph FPC["FlightPathController"]
     LAT["LateralController"]
@@ -40,15 +28,34 @@ flowchart TD
   SIM -->|"State"| MM
 ```
 
-## Requirements
-
-| ID | Requirement | Verified by | Result |
-| --- | --- | --- | --- |
-| GDN-01 | Flies well | Monte Carlo | TBD |
+`Target` carries one active lateral command (`Target::lateral`, a variant of
+`HeadingCommand`, `CourseCommand` or `BankCommand`) and one active vertical command
+(`Target::vertical`, a variant of `AltitudeCommand`, `FlightPathCommand` or
+`ClimbRateCommand`), plus `airspeed_kts`.
 
 ## Results
 
-TBD
+500 Monte Carlo runs (seeds 1–500) of a runway (KROA) approach:
+
+- Start position ±300 m north and east, heading ±15°, altitude ±150 ft, airspeed ±10 kts
+- Wind 0–20 kts from any direction
+- Turbulence severity 0-3 (none to moderate, JSBSim)
+
+| Metric | Mean | p95 | Max |
+| --- | --- | --- | --- |
+| Time to DH (s) | 102.0 | 114.2 | 120.6 |
+| \|Cross-track\| at DH (m) | 0.4 | 1.2 | 4.4 |
+| \|Glidepath deviation\| at DH (ft) | 6.3 | 23.6 | 63.9 |
+| Max \|cross-track\|, FAF to DH (m) | 3.9 | 9.9 | 131.5 |
+| Max \|glidepath deviation\|, capture to DH (°) | 0.2 | 0.6 | 1.4 |
+| Localizer overshoot (°) | 0.8 | 1.7 | 3.9 |
+| Max \|airspeed error\| below 1000 ft (kts) | 3.8 | 9.3 | 14.0 |
+| Max sink below 1000 ft (fpm) | 1321 | 1800 | 2164 |
+| Max bank (°) | 26.7 | 27.7 | 28.7 |
+| Max sideslip (°) | 1.9 | 3.4 | 3.9 |
+
+All runs captured the glideslope and reached DH. The nominal run reaches DH 0.1 m from the
+centerline and 0.8 ft above the glidepath.
 
 ## Future additions
 
@@ -64,7 +71,7 @@ TBD
 - A C++17 compiler
 - CMake 3.28 or newer
 - Git (how else would you have gotten here)
-- [uv](https://docs.astral.sh/uv/) for the Python analysis scripts
+- uv for the Python analysis scripts
 - FlightGear 2024.1 (optional for visualization)
 - LLVM clang-tidy and clang-format (optional for linting and formatting)
 
@@ -77,10 +84,13 @@ cmake -S . -B build
 # Build
 cmake --build build -j
 
-# Run headless: 60 s of sim time, writes run.csv
+# Fly the KROA runway 06 approach to decision height, writes run.csv
 ./build/acessna_run
 
-# Run with FlightGear: real time until the aircraft hits the ground, writes run.csv
+# Monte Carlo: dispersed runs in parallel, writes monte_carlo.csv
+./build/acessna_run --monte-carlo 200             # optional: --seed S --threads N
+
+# Same flight with FlightGear: real time, writes run.csv
 ./scripts/flightgear.sh            # wait until the cockpit view is up, then continue
 ./build/acessna_run --flightgear
 
@@ -98,38 +108,6 @@ ctest --test-dir build --output-on-failure
 uv run analysis/plot_run.py run.csv                 # interactive window
 uv run analysis/plot_run.py run.csv --save run.png  # image file
 ```
-
-### Layout
-
-| Path | Description |
-| --- | --- |
-| `src/main.cpp` | Entrypoint: configures the run and flies `Autopilot` |
-| `math` | Unit conversions and `wrap_180` / `wrap_360` |
-| `telemetry` | `Telemetry` signal recorder and the `TelemetrySource` mixin |
-| `sim/sim` | `C172Sim`: JSBSim wrapper, `InitialConditions`, `Controls`, `State` |
-| `sim/harness` | `run(controller, RunConfig)` closed-loop runner, CSV logging |
-| `sim/controller` | `Controller` interface the harness flies |
-| `sim/monte_carlo` | `run_monte_carlo`: runs seeded scenarios in parallel (header only) |
-| `autopilot/autopilot` | `Autopilot : Controller`: wires the layers below together |
-| `autopilot/mode_manager` | `ModeManager`: engages modes, runs their transitions and fills `Target` from the active lateral and vertical modes |
-| `autopilot/modes` | `LateralMode` / `VerticalMode` interfaces and the `HeadingHold` / `AltitudeHold` modes |
-| `guidance/` | Guidance laws (planned, empty): command sources the modes use (L1, glideslope) |
-| `control/setpoints` | `Target`, `AttitudeSetpoint`, `TecsOutput`, `FlightPathOutput`, `RateSetpoint`, `SurfaceCommands`: the data passed between layers |
-| `control/pid` | `Pid` with integrator limits and bumpless reset |
-| `control/filters` | `LowPassFilter`, `RateLimiter` |
-| `control/flight_path_controller` | `FlightPathController`: `Target` -> `AttitudeSetpoint` + throttle, runs the two below |
-| `control/tecs` | `Tecs`: longitudinal, airspeed + altitude / flight path angle / climb rate -> pitch setpoint + throttle |
-| `control/lateral_controller` | `LateralController`: lateral, heading / course / bank -> roll setpoint |
-| `control/attitude_controller` | `AttitudeController`: `AttitudeSetpoint` -> `RateSetpoint` (p, q, r) |
-| `control/rate_controller` | `RateController`: `RateSetpoint` -> elevator/aileron/rudder |
-| `analysis/` | Python analysis of run logs |
-| `scripts/` | Helper scripts (FlightGear launch) |
-| `tests/` | GoogleTest tests |
-
-`Target` carries one active lateral command (`Target::lateral`, a variant of
-`HeadingCommand`, `CourseCommand` or `BankCommand`) and one active vertical command
-(`Target::vertical`, a variant of `AltitudeCommand`, `FlightPathCommand` or
-`ClimbRateCommand`), plus `airspeed_kts`.
 
 ### Conventions
 

@@ -8,8 +8,10 @@ ModeManager::ModeManager()
 void ModeManager::reset(const State& initial) {
   pending_lateral_.reset();
   pending_vertical_.reset();
-  lateral_ = std::make_unique<HeadingHold>();
-  vertical_ = std::make_unique<AltitudeHold>();
+  InitialModes modes;
+  if (make_initial_) modes = make_initial_();
+  lateral_ = modes.lateral ? std::move(modes.lateral) : std::make_unique<HeadingHold>();
+  vertical_ = modes.vertical ? std::move(modes.vertical) : std::make_unique<AltitudeHold>();
   lateral_->enter(initial);
   vertical_->enter(initial);
   airspeed_kts_ = initial.airspeed_kts;

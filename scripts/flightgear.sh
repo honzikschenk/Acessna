@@ -7,7 +7,7 @@ FGFS="${FGFS:-$(command -v fgfs || echo /Applications/FlightGear.app/Contents/Ma
 exec "$FGFS" \
   --fdm=null --native-fdm=socket,in,60,,5550,udp \
   --aircraft=c172p --timeofday=noon \
-  --lat=37.325776 --lon=-79.978586 --altitude=3000 --heading=0 --in-air \
+  --lat=37.326734 --lon=-79.999895 --altitude=2152 --heading=229.5 --in-air \
   '--prop:/consumables/fuel/tank[0]/capacity-gal_us=30.8' \
   '--prop:/consumables/fuel/tank[0]/density-ppg=6.0' \
   '--prop:/consumables/fuel/tank[1]/capacity-gal_us=30.8' \

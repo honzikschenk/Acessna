@@ -83,7 +83,7 @@ State C172Sim::reset() {
   fdm_ = std::move(fdm);
   trim_controls_.elevator = get("fcs/elevator-cmd-norm");
   trim_controls_.aileron = get("fcs/aileron-cmd-norm");
-  trim_controls_.rudder = get("fcs/rudder-cmd-norm");
+  trim_controls_.rudder = -get("fcs/rudder-cmd-norm");
   trim_controls_.throttle = get("fcs/throttle-cmd-norm");
   trim_controls_.mixture = get("fcs/mixture-cmd-norm");
   trim_controls_.flaps = get("fcs/flap-cmd-norm");
@@ -94,7 +94,7 @@ State C172Sim::reset() {
 void C172Sim::apply(const Controls& c) {
   set("fcs/elevator-cmd-norm", std::clamp(c.elevator, -1.0, 1.0));
   set("fcs/aileron-cmd-norm", std::clamp(c.aileron, -1.0, 1.0));
-  set("fcs/rudder-cmd-norm", std::clamp(c.rudder, -1.0, 1.0));
+  set("fcs/rudder-cmd-norm", -std::clamp(c.rudder, -1.0, 1.0));
   set("fcs/throttle-cmd-norm", std::clamp(c.throttle, 0.0, 1.0));
   set("fcs/mixture-cmd-norm", std::clamp(c.mixture, 0.0, 1.0));
   set("fcs/flap-cmd-norm", std::clamp(c.flaps, 0.0, 1.0));
@@ -112,6 +112,8 @@ State C172Sim::state() const {
   State s{};
   for (const auto& sp : kStateFields) s.*sp.field = fdm_->GetPropertyValue(sp.prop) * sp.scale;
   s.track_deg = wrap_360(s.track_deg);
+  if (s.lat_deg < ic_.lat_deg) s.north_m = -s.north_m;
+  if (wrap_180(s.lon_deg - ic_.lon_deg) < 0.0) s.east_m = -s.east_m;
   return s;
 }
 
