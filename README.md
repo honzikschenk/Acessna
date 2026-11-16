@@ -66,6 +66,7 @@ TBD
 - Git (how else would you have gotten here)
 - [uv](https://docs.astral.sh/uv/) for the Python analysis scripts
 - FlightGear 2024.1 (optional for visualization)
+- LLVM clang-tidy and clang-format (optional for linting and formatting)
 
 ### Commands
 
@@ -85,6 +86,13 @@ cmake --build build -j
 
 # Test (GoogleTest via ctest)
 ctest --test-dir build --output-on-failure
+
+# Lint (clang-tidy)
+./scripts/lint.sh
+
+# Format (clang-format)
+./scripts/format.sh                 # format
+./scripts/format.sh --check         # list unformatted code changing nothing
 
 # Plot a run
 uv run analysis/plot_run.py run.csv                 # interactive window
